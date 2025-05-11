@@ -26,7 +26,26 @@ trainingDataMatrix = [
     for x1 in trainingDataX1List
 ]
 
+trainingVector = [t for tRow in trainingDataMatrix for t in tRow]
 
-plt.figure(figsize=[5.0, 5.0])
-plt.contour(trainingDataX1List, trainingDataX2List, trainingDataMatrix, 20)
-plt.show()
+phi = [[1, x1**2, x2**3] for x1 in trainingDataX1List for x2 in trainingDataX2List]
+
+wML = np.matmul(
+    np.matmul(np.linalg.inv(np.matmul(np.transpose(phi), phi)), np.transpose(phi)),
+    trainingVector,
+)
+
+bML = len(trainingVector) / sum(
+    [
+        (trainingVector[i] - np.matmul(phi[i], wML)) ** 2
+        for i in range(len(trainingVector))
+    ]
+)
+
+testVector = [t for tRow in testDataMatrix for t in tRow]
+
+testPhi = [[1, x1**2, x2**3] for x1 in testDataX1List for x2 in testDataX2List]
+
+mse = sum(
+    [(np.matmul(testPhi[i], wML) - testVector[i]) ** 2 for i in range(len(testVector))]
+) / len(testVector)
