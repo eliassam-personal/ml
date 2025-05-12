@@ -4,6 +4,8 @@ from math import sqrt
 
 std = 0.3
 
+np.random.seed(0)
+
 t = lambda w0, w1, w2, x1, x2: w0 + w1 * x1**2 + w2 * x2**3
 epsilon = lambda: np.random.normal(0, std)
 w = [0, 2.5, -0.5]
@@ -28,24 +30,30 @@ trainingDataMatrix = [
 
 trainingVector = [t for tRow in trainingDataMatrix for t in tRow]
 
-phi = [[1, x1**2, x2**3] for x1 in trainingDataX1List for x2 in trainingDataX2List]
+phi = lambda x1, x2: [1, x1**2, x2**3]
+
+designMatrix = [phi(x1, x2) for x1 in trainingDataX1List for x2 in trainingDataX2List]
 
 wML = np.matmul(
-    np.matmul(np.linalg.inv(np.matmul(np.transpose(phi), phi)), np.transpose(phi)),
+    np.matmul(np.linalg.inv(np.matmul(np.transpose(designMatrix), designMatrix)), np.transpose(designMatrix)),
     trainingVector,
 )
 
 bML = len(trainingVector) / sum(
     [
-        (trainingVector[i] - np.matmul(phi[i], wML)) ** 2
+        (trainingVector[i] - np.matmul(designMatrix[i], wML)) ** 2
         for i in range(len(trainingVector))
     ]
 )
 
 testVector = [t for tRow in testDataMatrix for t in tRow]
 
-testPhi = [[1, x1**2, x2**3] for x1 in testDataX1List for x2 in testDataX2List]
+testdesignMatrix = [phi(x1,x2) for x1 in testDataX1List for x2 in testDataX2List]
 
 mse = sum(
-    [(np.matmul(testPhi[i], wML) - testVector[i]) ** 2 for i in range(len(testVector))]
+    [(np.matmul(testdesignMatrix[i], wML) - testVector[i]) ** 2 for i in range(len(testVector))]
 ) / len(testVector)
+
+print(mse)
+
+
